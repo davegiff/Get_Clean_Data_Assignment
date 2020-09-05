@@ -1,3 +1,4 @@
+# load tidyverse which contains a number of functions that will be used
 library(tidyverse)
 
 X_train <- read.table("./UCI HAR Dataset/train/X_train.txt")
