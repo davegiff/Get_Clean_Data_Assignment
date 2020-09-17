@@ -1,19 +1,49 @@
 # load tidyverse which contains a number of functions that will be used
 library(tidyverse)
 
+# load train data
 X_train <- read.table("./UCI HAR Dataset/train/X_train.txt")
 Y_train <- read.table("./UCI HAR Dataset/train/Y_train.txt")
 Sub_train <- read.table("./UCI HAR Dataset/train/subject_train.txt")
 
-variable_names <- read.table("./UCI HAR Dataset/features.txt")
+# load test  data
+X_test <- read.table("./UCI HAR Dataset/test/X_test.txt")
+Y_test <- read.table("./UCI HAR Dataset/test/Y_test.txt")
+Sub_test <- read.table("./UCI HAR Dataset/test/subject_test.txt")
 
-selected_var <- variable_names[grep("mean\\(\\)|std\\(\\)",variable_names[,2]),]
+#combine train and test data
+X_data <- rbind(X_train,X_test)
+Y_data <- rbind(Y_train,Y_test)
+Sub_data <- rbind(Sub_train,Sub_test)
 
-selected_var2 <- variable_names[grep("mean\\(\\)",variable_names[,2]),]
+# load variable names and add to data
+var_names <- read.table("./UCI HAR Dataset/features.txt")
 
-means<-filter(variable_names,str_detect(V2,"mean\\(\\)"))
-stds<-filter(variable_names,str_detect(V2,"std\\(\\)"))
+# load activity labels
+act_labels <- read.table("./UCI HAR Dataset/activity_labels.txt")
 
+# determine which variables are means and standard deviations and 
+# discards others
+
+means<-filter(var_names,str_detect(V2,"mean\\(\\)"))
+stds<-filter(var_names,str_detect(V2,"std\\(\\)"))
 both<-rbind(means,stds)
+keep<-X_data[,both$V1]
+all_data <-cbind(Sub_data,Y_data,keep)
+colnames(all_data) <- c("Subject","Activity",var_names[both[,1],2])
 
-keep<-X_train[,both$V1]
+# remove brackets and hyphens from names, add hyphen back at the start
+# and capitalise
+
+colnames(all_data) <- gsub("\\()","",names(all_data))
+colnames(all_data) <- gsub("-","",names(all_data))
+colnames(all_data) <- gsub("mean","-Mean",names(all_data))
+colnames(all_data) <- gsub("std","-Std",names(all_data))
+
+# add the meaningful activity names
+
+all_data$Activity <- factor(all_data$Activity, levels = act_labels[,1], labels = act_labels[,2])
+
+
+all_mean <- all_data %>% group_by(Activity, Subject) %>% summarise_all(mean)
+write.table(all_mean, file = "./UCI HAR Dataset/tidydata.txt", row.names = FALSE, col.names = TRUE)
