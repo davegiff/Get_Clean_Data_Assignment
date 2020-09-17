@@ -12,4 +12,4 @@ Steps undertaken in the code, **run_analysis.R**, are as follows:
 * Generate means for each of the retained variables
 * Write the output to a tidy text file, **tidydata.txt**
 
-Variable descriptions in the *tidydata.txt* file are included in **codebook.md**
+Variable descriptions in the **tidydata.txt** file are included in **codebook.md**
