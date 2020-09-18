@@ -24,7 +24,6 @@ act_labels <- read.table("./UCI HAR Dataset/activity_labels.txt")
 
 # determine which variables are means and standard deviations and 
 # discards others
-
 means<-filter(var_names,str_detect(V2,"mean\\(\\)"))
 stds<-filter(var_names,str_detect(V2,"std\\(\\)"))
 both<-rbind(means,stds)
@@ -34,16 +33,16 @@ colnames(all_data) <- c("Subject","Activity",var_names[both[,1],2])
 
 # remove brackets and hyphens from names, add hyphen back at the start
 # and capitalise
-
-colnames(all_data) <- gsub("\\()","",names(all_data))
-colnames(all_data) <- gsub("-","",names(all_data))
-colnames(all_data) <- gsub("mean","-Mean",names(all_data))
-colnames(all_data) <- gsub("std","-Std",names(all_data))
+colnames(all_data) <- gsub("\\()","",colnames(all_data))
+colnames(all_data) <- gsub("-","",colnames(all_data))
+colnames(all_data) <- gsub("mean","-Mean",colnames(all_data))
+colnames(all_data) <- gsub("std","-Std",colnames(all_data))
 
 # add the meaningful activity names
-
 all_data$Activity <- factor(all_data$Activity, levels = act_labels[,1], labels = act_labels[,2])
 
-
+# generate means for each combination of Activity and Subject
 all_mean <- all_data %>% group_by(Activity, Subject) %>% summarise_all(mean)
-write.table(all_mean, file = "./UCI HAR Dataset/tidydata.txt", row.names = FALSE, col.names = TRUE)
+
+# write to text file
+write.table(all_mean, file = "./tidydata.txt", row.names = FALSE, col.names = TRUE)
